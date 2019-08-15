@@ -404,6 +404,13 @@ class CMSLog:
         logging.info(u'一共检索到%s满足要求的记录,用时%s(秒)' % (len(search_list), (now - start_time).seconds))
         return search_list
 
+    def cms_log_check_task(self):
+        timestamp = (int(time.time()) % 60) * 60
+        begin_time = datetime.datetime.fromtimestamp(timestamp - 600)
+        end_time = datetime.datetime.fromtimestamp(timestamp - 300)
+        call_list = self.check_blink_call(begin_time, end_time)
+        return call_list
+
 
 if __name__ == '__main__':
     test_start_time = datetime.datetime.strptime('2018-07-28 00:00:00', '%Y-%m-%d %H:%M:%S')
