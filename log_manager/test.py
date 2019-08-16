@@ -70,8 +70,8 @@ def time_test():
 
 def http_test():
     body = dict()
-    body['startTime'] = datetime.datetime.strptime('2019-08-01 00:00:00', '%Y-%m-%d %H:%M:%S')
-    body['endTime'] = datetime.datetime.strptime('2019-09-01 00:00:00', '%Y-%m-%d %H:%M:%S')
+    body['startTime'] = '2019-08-01 00:00:00'
+    body['endTime'] = '2019-09-01 00:00:00'
     headers = {'content-type': "application/json"}
     url = 'http://10.130.76.106:8001/cms/sgBlindMakeCallEx/'
     response = requests.post(url, data=json.dumps(body, ensure_ascii=False), headers=headers)
@@ -80,4 +80,5 @@ def http_test():
 
 
 if __name__ == '__main__':
-    time_test()
+    # time_test()
+    http_test()

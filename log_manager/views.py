@@ -50,7 +50,7 @@ def url_test(request, app_name, event_name):
     return HttpResponse(json.dumps(dc, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
 
-def get_app_event_detail(request, app_name, event_name, params):
+def get_app_event_detail(request, app_name, event_name):
     """
     获取应用相关事件详情
     :param request: http请求消息
@@ -59,7 +59,8 @@ def get_app_event_detail(request, app_name, event_name, params):
     :param params: 检查参数
     :return:检查结果
     """
-    print('in haha')
+    print(request.method)
+    print(request.body)
     ret = dict()
     ret['result'] = False
     if app_name != 'cms':
@@ -71,8 +72,12 @@ def get_app_event_detail(request, app_name, event_name, params):
     else:
         if app_name == 'cms' and event_name == 'sgBlindMakeCallEx':
             try:
-                start_time = datetime.datetime.strptime(request.POST.get('startTime'), '%Y-%m-%d %H:%M:%S')
-                end_time = datetime.datetime.strptime(request.POST.get('endTime'), '%Y-%m-%d %H:%M:%S')
+                body = json.loads(request.body)
+                print(body['startTime'])
+                print(body['endTime'])
+                print('body=%s' % body)
+                start_time = datetime.datetime.strptime(body['startTime'], '%Y-%m-%d %H:%M:%S')
+                end_time = datetime.datetime.strptime(body['endTime'], '%Y-%m-%d %H:%M:%S')
             except Exception, e:
                 logging.error(u'获取开始或是结束时间异常,开始时间和结束时间的格式必须为yyyy-MM-dd HH:mm:ss:%s' % e, exc_info=True)
                 ret['data'] = u'获取开始或是结束时间异常,开始时间和结束时间的格式必须为yyyy-MM-dd HH:mm:ss:%s' % e
