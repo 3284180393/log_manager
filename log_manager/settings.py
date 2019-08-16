@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Django settings for log_manager project.
 
@@ -11,6 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from conf import log_conf
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -37,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_crontab',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -48,11 +51,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-CRONJOBS = [
-    # 每一分钟执行一次
-    ('*/5 * * * *', 'app名称.xxx.task')
 ]
 
 ROOT_URLCONF = 'log_manager.urls'

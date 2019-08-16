@@ -4,12 +4,43 @@ from django.http import HttpResponse
 import json
 import logging
 import datetime
+import time
 import cms
-import urllib
-
+from apscheduler.schedulers.background import BackgroundScheduler
+from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
+from conf import log_conf
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT)
+
+
+#开启定时工作
+try:
+    # 实例化调度器
+    scheduler = BackgroundScheduler()
+    # 调度器使用DjangoJobStore()
+    scheduler.add_jobstore(DjangoJobStore(), "default")
+    # 设置定时任务，选择方式为interval，时间间隔为10s
+    # 另一种方式为每天固定时间执行任务，对应代码为：
+    # @register_job(scheduler, 'cron', day_of_week='mon-fri', hour='9', minute='30', second='10',id='task_time')
+    @register_job(scheduler,"interval", minutes=1)
+    def my_job():
+        # 这里写你要执行的任务
+        print('hello, boy')
+        timestamp = (int(time.time()/60)) * 60
+        begin_time = datetime.datetime.fromtimestamp(timestamp - log_conf.cms_check_delay * 60 - log_conf.cms_check_span * 60)
+        end_time = datetime.datetime.fromtimestamp(timestamp - log_conf.cms_check_delay * 60)
+        cms_log = cms.CMSLog(es_cluster=log_conf.es_cluster, cms_log_index=log_conf.cms_log_index, blink_call_detail_index=log_conf.cms_blink_make_call, dnis_query_url=log_conf.dnis_query_url, voip_query_url=log_conf.voip_query_url, platform_id=log_conf.platform_id, platform_name=log_conf.platform_name, platform_code=log_conf.platform_code)
+        call_list = cms_log.check_blink_call(begin_time, end_time)
+        msg = u'%s到%s一共检查到%s通sgBlinkCallEx事件' % (begin_time, end_time, len(call_list))
+        logging.info(msg)
+        print(msg)
+    register_events(scheduler)
+    scheduler.start()
+except Exception as e:
+    print(e)
+    # 有错误就停止定时器
+    scheduler.shutdown()
 
 
 def url_test(request, app_name, event_name):
@@ -38,33 +69,21 @@ def get_app_event_detail(request, app_name, event_name, params):
         logging.error(u'目前%s还不支持%s事件检查' % (app_name, event_name))
         ret['data'] = u'目前%s还不支持%s事件检查' % (app_name, event_name)
     else:
-        try:
-            print(params)
-            param_dict = json.loads(params)
-            print(param_dict)
-        except Exception, e:
-            logging.error(u'%s不是一个合法的json串' % params)
-            ret['data'] = u'%s不是一个合法的json串' % params
-        else:
-            if app_name == 'cms' and event_name == 'sgBlindMakeCallEx':
-                if 'startTime' not in param_dict.keys() or 'endTime' not in param_dict.keys():
-                    logging.error(u'%s的%s事件检查必须包含startTime和endTime' % (app_name, event_name))
-                else:
-                    try:
-                        start_time = datetime.datetime.strptime(param_dict['startTime'], '%Y-%m-%d %H:%M:%S')
-                        end_time = datetime.datetime.strptime(param_dict['endTime'], '%Y-%m-%d %H:%M:%S')
-                    except Exception, e:
-                        logging.error(u'时间格式错误,开始时间和结束时间的格式必须为yyyy-MM-dd HH:mm:ss')
-                        ret['data'] = u'时间格式错误,开始时间和结束时间的格式必须为yyyy-MM-dd HH:mm:ss'
-                    else:
-                        try:
-                            print('nice')
-                            call_list = cms.CMSLog().query_blink_call(start_time, end_time)
-                            ret['data'] = call_list
-                            ret['result'] = True
-                            logging.info(u'查询%s的%s的信息成功' % (app_name, event_name))
-                        except Exception, e:
-                            logging.error(u'查询%s的%s的信息异常:%s' % (app_name, event_name, e), exc_info=True)
-                            ret['data'] = u'查询%s的%s的信息异常:%s' % (app_name, event_name, e)
+        if app_name == 'cms' and event_name == 'sgBlindMakeCallEx':
+            try:
+                start_time = datetime.datetime.strptime(request.POST.get('startTime'), '%Y-%m-%d %H:%M:%S')
+                end_time = datetime.datetime.strptime(request.POST.get('endTime'), '%Y-%m-%d %H:%M:%S')
+            except Exception, e:
+                logging.error(u'获取开始或是结束时间异常,开始时间和结束时间的格式必须为yyyy-MM-dd HH:mm:ss:%s' % e, exc_info=True)
+                ret['data'] = u'获取开始或是结束时间异常,开始时间和结束时间的格式必须为yyyy-MM-dd HH:mm:ss:%s' % e
+            else:
+                try:
+                    call_list = cms.CMSLog().query_blink_call(start_time, end_time)
+                    ret['data'] = call_list
+                    ret['result'] = True
+                    logging.info(u'查询%s的%s的信息成功' % (app_name, event_name))
+                except Exception, e:
+                    logging.error(u'查询%s的%s的信息异常:%s' % (app_name, event_name, e), exc_info=True)
+                    ret['data'] = u'查询%s的%s的信息异常:%s' % (app_name, event_name, e)
     logging.info(json.dumps(ret, ensure_ascii=False))
     return HttpResponse(json.dumps(ret, ensure_ascii=False), content_type="application/json,charset=utf-8")

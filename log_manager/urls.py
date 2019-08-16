@@ -19,6 +19,5 @@ import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^(?P<app_name>\w+)/(?P<event_name>\w+)/$', views.url_test),
-    url(r'^(?P<app_name>\w+)/(?P<event_name>\w+)/(?P<params>.+)/$', views.get_app_event_detail),
+    url(r'^(?P<app_name>\w+)/(?P<event_name>\w+)/$', views.get_app_event_detail),
 ]
