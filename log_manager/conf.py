@@ -21,6 +21,7 @@ class LogConf(object):
         self.es_cluster = es_cluster
         self.cms_log_index = cf.get('elasticsearch', 'cms_log_index')
         self.cms_blink_make_call = cf.get('elasticsearch', 'cms_blink_make_call')
+        self.cms_call_detail_index = cf.get('elasticsearch', 'cms_call_detail_index')
         self.dnis_query_url = cf.get('ccod', 'dnis_query_url')
         self.voip_query_url = cf.get('ccod', 'voip_query_url')
         self.platform_id = cf.get('ccod', 'platform_id')

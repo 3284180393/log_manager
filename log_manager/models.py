@@ -34,6 +34,7 @@ class CallingNumber:
         self.province = prince
         self.city = city
 
+
 class DNIS:
     """
     用来定义被叫号码相关信息的类
@@ -72,3 +73,25 @@ class DNIS:
         self.province = province
         self.city = city
         self.city_code = city_code
+
+
+class Record:
+    def __init__(self, session_id, call_id, res_id, start_time, save_path, result):
+        """
+        初始化录音信息
+        :param session_id:录音对应的session_id
+        :param res_id: 录音对应的res_id
+        :param call_id: 录音对应的call_id
+        :param start_time: 录音开始时间
+        :param save_path: 录音保存路径
+        :param result: 录音结果
+        """
+        self.session_id = session_id
+        self.res_id = res_id
+        self.call_id = call_id
+        self.start_time = start_time
+        self.save_path = save_path
+        self.result = result
+        self.record_type = None
+        self.media_id = None
+        self.end_time = None
