@@ -4,19 +4,18 @@
 import datetime
 from elasticsearch import Elasticsearch
 import json
-import logging as logger
 from models import CallingNumber
 from models import DNIS
 import requests
 from elasticsearch.helpers import bulk
 import time
 from models import Record
+import logging as logger
 
-
-# logging = logger.getLogger(__name__)
-logging = logger
-LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
-logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT)
+logging = logger.getLogger(__name__)
+# logging = logger
+# LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+# logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT)
 
 
 class BlindMakeCall:
@@ -378,6 +377,9 @@ class CMSLog:
             else:
                 pass
         logging.info(u'总共匹配到%s通呼叫' % len(all_call_list))
+        if len(all_call_list) == 0:
+            logging.info(u'没有查询到呼叫无需匹配号码归属地和外显号所属voip公司')
+            return all_call_list
         dnis_call_dict = dict()
         calling_number_call_dict = dict()
         for call in all_call_list:
@@ -607,8 +609,9 @@ class CMSLog:
     def query_blink_call(self, start_time, end_time):
         body = {"query": {"bool": {
             "must": [{"range": {
-                "start_time": {"gte": int(time.mktime(start_time.timetuple())) * 1000,
-                               "lte": int(time.mktime(end_time.timetuple())) * 1000}}}]}}, "from": 0, "size": 10000}
+                "start_time": {"gte": start_time,
+                               "lte": end_time}}}]}}}
+        logging.info(u'准备查询%s到%s时间段的所有呼叫,body=%s' % (start_time, end_time, json.dumps(body, ensure_ascii=False)))
         call_list = self.__scan_es_by_scroll(self.blink_call_index, body)
         logging.info(u'一共发现%s条满足条件的sgBlindMakeCallEx事件' % len(call_list))
         return call_list

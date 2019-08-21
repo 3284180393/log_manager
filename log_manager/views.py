@@ -2,16 +2,18 @@
 
 from django.http import HttpResponse
 import json
-import logging
 import datetime
 import time
 import cms
 from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
 from conf import log_conf
+import logging as logger
 
-LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
-logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT)
+logging = logger.getLogger(__name__)
+
+# LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+# logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT)
 
 
 #开启定时工作
@@ -30,7 +32,7 @@ try:
         timestamp = (int(time.time()/60)) * 60
         begin_time = datetime.datetime.fromtimestamp(timestamp - log_conf.cms_check_delay * 60 - log_conf.cms_check_span * 60)
         end_time = datetime.datetime.fromtimestamp(timestamp - log_conf.cms_check_delay * 60)
-        cms_log = cms.CMSLog(es_cluster=log_conf.es_cluster, cms_log_index=log_conf.cms_log_index, blink_call_detail_index=log_conf.cms_blink_make_call, dnis_query_url=log_conf.dnis_query_url, voip_query_url=log_conf.voip_query_url, platform_id=log_conf.platform_id, platform_name=log_conf.platform_name, platform_code=log_conf.platform_code)
+        cms_log = cms.CMSLog(es_cluster=log_conf.es_cluster, cms_log_index=log_conf.cms_log_index, blink_call_index=log_conf.cms_blink_make_call, dnis_query_url=log_conf.dnis_query_url, voip_query_url=log_conf.voip_query_url, platform_id=log_conf.platform_id, platform_name=log_conf.platform_name, platform_code=log_conf.platform_code)
         call_list = cms_log.check_blink_call(begin_time, end_time)
         msg = u'%s到%s一共检查到%s通sgBlinkCallEx事件' % (begin_time, end_time, len(call_list))
         logging.info(msg)
@@ -76,8 +78,8 @@ def get_app_event_detail(request, app_name, event_name):
                 print(body['startTime'])
                 print(body['endTime'])
                 print('body=%s' % body)
-                start_time = datetime.datetime.strptime(body['startTime'], '%Y-%m-%d %H:%M:%S')
-                end_time = datetime.datetime.strptime(body['endTime'], '%Y-%m-%d %H:%M:%S')
+                start_time = int(time.mktime(datetime.datetime.strptime(body['startTime'], '%Y-%m-%d %H:%M:%S').timetuple()))
+                end_time = int(time.mktime(datetime.datetime.strptime(body['endTime'], '%Y-%m-%d %H:%M:%S').timetuple()))
             except Exception, e:
                 logging.error(u'获取开始或是结束时间异常,开始时间和结束时间的格式必须为yyyy-MM-dd HH:mm:ss:%s' % e, exc_info=True)
                 ret['data'] = u'获取开始或是结束时间异常,开始时间和结束时间的格式必须为yyyy-MM-dd HH:mm:ss:%s' % e

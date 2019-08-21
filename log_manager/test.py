@@ -66,11 +66,26 @@ def time_test():
     end_time = datetime.datetime.fromtimestamp(timestamp)
     print(begin_time)
     print(end_time)
+    start_time = '2019-07-12T20:16:07.904Z'
+    start_time = datetime.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S.%fZ')
+    print(start_time)
+    timestamp = time.mktime(datetime.datetime.timetuple(start_time))
+    print(timestamp)
+
+
+def timestamp_test():
+    t = time.time()
+    print (t)  # 原始时间数据
+    print (int(t))  # 秒级时间戳
+    print (int(round(t * 1000)))  # 毫秒级时间戳
+
+    now_time = lambda: int(round(t * 1000))
+    print (now_time())
 
 
 def http_test():
     body = dict()
-    body['startTime'] = '2019-08-01 00:00:00'
+    body['startTime'] = '2018-08-01 00:00:00'
     body['endTime'] = '2019-09-01 00:00:00'
     headers = {'content-type': "application/json"}
     url = 'http://10.130.76.106:8001/cms/sgBlindMakeCallEx/'
@@ -82,3 +97,4 @@ def http_test():
 if __name__ == '__main__':
     # time_test()
     http_test()
+    # timestamp_test()
