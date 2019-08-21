@@ -1,9 +1,10 @@
+2019.8.21 log_manager 0.0.0.1测试版本发布
 基于elk的ccod日志分析模块部署说明
 1、在服务器搭建好elk，具体步骤可参见https://blog.csdn.net/tanqian351/article/details/83827583
 2、安装python 2.7.11版本
 3、安装或是升级pip 19.1.1版本(升级命令pip install --upgrade pip==19.1.1)
 4、执行unzip log_manager.zip
-5、进入log_manager目录执行pip install -r requirements.txt(该命令需要在root用户下执行)
+5、进入log_manager目录执行pip install -r requirements.txt
 6、执行python manage.py runserver 0.0.0.0:8001,8001可以替换成你想要的端口
 
 
@@ -37,3 +38,5 @@ cms_check_delay:检查多少分钟之前的cms日志
 例如:cms_check_delay=5
 cms_check_span:每次检查的时间跨度,例如当前时间是now,那么每次定时任务将会检查now-cms_check_delay-cms_check_span到now-cms_check_delay之间的cms日志
 例如:cms_check_span=5
+
+docs目录下的cms_patterns.txt是cms日志的logstash解析配置文件，通过修改配置文件中的path => ["/home/elk/samples/logs/cms/cms2.log"]来指向filebeat收集的cms日志文件,多个文件可以用*.log或是其它的方式表达

@@ -88,7 +88,7 @@ def http_test():
     body['startTime'] = '2018-08-01 00:00:00'
     body['endTime'] = '2019-09-01 00:00:00'
     headers = {'content-type': "application/json"}
-    url = 'http://10.130.76.106:8001/cms/sgBlindMakeCallEx/'
+    url = 'http://192.168.33.10:8001/cms/sgBlindMakeCallEx/'
     response = requests.post(url, data=json.dumps(body, ensure_ascii=False), headers=headers)
     print(response.text)
     return response.text
