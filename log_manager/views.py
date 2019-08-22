@@ -16,7 +16,7 @@ logging = logger.getLogger(__name__)
 # logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT)
 
 
-#开启定时工作
+# # 开启定时工作
 # try:
 #     # 实例化调度器
 #     scheduler = BackgroundScheduler()

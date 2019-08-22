@@ -16,8 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from log_manager import views
+from django.conf.urls import url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(r'^apps/(?P<app_name>\w+)/(?P<event_name>\w+)/', views.get_app_event_detail),
+    url(r'^apps/(?P<app_name>\w+)/(?P<event_name>\w+)/', views.get_app_event_detail),
 ]

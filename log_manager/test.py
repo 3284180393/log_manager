@@ -36,20 +36,20 @@ def scroll_test():
     )
     sid = page['_scroll_id']
     scroll_size = page['hits']['total']
-    print 'total scroll_size: ', scroll_size
+    print ('total scroll_size: ', scroll_size)
 
     l = []
     # Start scrolling
     all_count = 0
     start_time = datetime.datetime.now()
     while scroll_size > 0:
-        print "Scrolling..."
+        print ("Scrolling...")
         page = es.scroll(scroll_id=sid, scroll='2m')
         # Update the scroll ID
         sid = page['_scroll_id']
         # Get the number of results that we returned in the last scroll
         scroll_size = len(page['hits']['hits'])
-        print "scroll size: " + str(scroll_size)
+        print ("scroll size: " + str(scroll_size))
         all_count = all_count + scroll_size
         print('all_count=%s' % all_count)
         # Do something with the obtained page
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     # time_test()
     # http_test()
     # timestamp_test()
-    # rest_http_test()
-    datetime_test()
+    rest_http_test()
+    # datetime_test()
 
 
