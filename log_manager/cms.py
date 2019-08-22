@@ -245,12 +245,14 @@ class CMSLog:
                 calling_number = CallingNumber(event['calling_number'])
                 dnis = DNIS(event['dnis'])
                 if event['dnis'] not in dnis_dict.keys():
+                    logging.error(u'严重错误:%s的被叫号码%s未知' % (session_id, event['dnis']))
                     pass
                 dnis.prefix = dnis_dict[event['dnis']]['dnis_type']
                 call = BlindMakeCall(session_id, calling_number, dnis, event['@timestamp'], self.platform_id, self.platform_name, self.platform_code)
                 call.call_result = event['result']
                 call.end_time = call.start_time
                 call.ent_id = ent_id
+                call.conn_id = dnis_dict[event['dnis']]['conn_id']
                 if len(conn_call_dict) == 0:
                     call.target = 'AGENT'
                 elif len(conn_call_dict) == 1:
@@ -264,12 +266,18 @@ class CMSLog:
                     call.res_id = '%s' % hex(int(event['res_id']))
                     conn_call_dict[dnis_dict[event['dnis']]['conn_id']] = call
             elif event['event_type'] == 'SgEvtRemoteAlerting':
+                if event['conn_id'] not in conn_call_dict.keys():
+                    logging.error(u'严重错误%s的SgEvtRemoteAlerting事件conn_id %s未知' % (session_id, event['conn_id']))
+                    continue
                 call = conn_call_dict[event['conn_id']]
                 call.call_result = 'ALERTING'
                 call.end_time = event['@timestamp']
                 if not call.alerting_time:
                     call.alerting_time = event['@timestamp']
             elif event['event_type'] == 'SgEvtConnected':
+                if event['conn_id'] not in conn_call_dict.keys():
+                    logging.error(u'严重错误%s的SgEvtConnected事件conn_id %s未知' % (session_id, event['conn_id']))
+                    continue
                 call = conn_call_dict[event['conn_id']]
                 call.call_result = 'CONNECT'
                 call.end_time = event['@timestamp']
@@ -278,6 +286,9 @@ class CMSLog:
                     logging.error(u'%s的%s呼叫有connect无alerting事件')
                     call.alerting_time = call.start_time
             elif event['event_type'] == 'SgEvtDisconnected':
+                if event['conn_id'] not in conn_call_dict.keys():
+                    logging.error(u'严重错误%s的SgEvtDisconnected事件conn_id %s未知' % (session_id, event['conn_id']))
+                    continue
                 if event['conn_id'] not in conn_call_dict.keys():
                     continue
                 if session_id == '0xb5d288220000004':
@@ -455,12 +466,17 @@ class CMSLog:
         all_call_list = list()
         for session_id in all_call_dict.keys():
             call_detail = CMSCallDetail(session_id)
-            make_call_list = self.__get_blink_make_call(session_id, all_call_dict[session_id])
-            record = self.__get_record(session_id, all_call_dict[session_id])
-            detail_dict = call_detail.set_call_info(make_call_list, record)
-            all_call_list.append(detail_dict)
-            logging.info(
-                u'一共检查到%s条呼叫,现在准备添加到%s/doc中去' % (len(all_call_list), self.cms_call_detail_index))
+            try:
+                make_call_list = self.__get_blink_make_call(session_id, all_call_dict[session_id])
+                record = self.__get_record(session_id, all_call_dict[session_id])
+            except Exception, e:
+                logging.error(u'检查%s录音明细异常:%s' % (session_id, e))
+            else:
+                detail_dict = call_detail.set_call_info(make_call_list, record)
+                all_call_list.append(detail_dict)
+                logging.info(
+                    u'一共检查到%s条呼叫,现在准备添加到%s/doc中去' % (len(all_call_list), self.cms_call_detail_index))
+
         self.__bulk_call_detail(all_call_list)
         return all_call_list
 

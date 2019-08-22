@@ -5,7 +5,7 @@ from elasticsearch import Elasticsearch
 import datetime
 import time
 import requests
-
+import urllib
 
 def scroll_test():
     hosts = [{'host': '10.130.44.108', 'port': 9200}]
@@ -83,6 +83,14 @@ def timestamp_test():
     print (now_time())
 
 
+def datetime_test():
+    now = datetime.datetime.now()
+    print(now)
+    delta = datetime.timedelta(minutes=now.minute, seconds=now.second)
+    begin = now - delta
+    print(begin)
+
+
 def http_test():
     body = dict()
     body['startTime'] = '2018-08-01 00:00:00'
@@ -94,7 +102,25 @@ def http_test():
     return response.text
 
 
+def rest_http_test():
+    start_time = '2018-08-01 00:00:00'
+    end_time = '2019-09-01 00:00:00'
+    # headers = {'content-type': "application/json"}
+    params = 'startTime=%s&endTime=%s' % (start_time, end_time)
+    # params = urllib.quote(params)
+    url = 'http://127.0.0.1:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
+    # url = urllib.quote(url)
+    print(url)
+    response = requests.get(url)
+    print(response.text)
+    return response.text
+
+
 if __name__ == '__main__':
     # time_test()
-    http_test()
+    # http_test()
     # timestamp_test()
+    # rest_http_test()
+    datetime_test()
+
+
