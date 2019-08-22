@@ -6,7 +6,7 @@ import datetime
 import time
 from log_manager import cms
 from apscheduler.schedulers.background import BackgroundScheduler
-# from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
+from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
 from log_manager.conf import log_conf
 import logging as logger
 
@@ -16,33 +16,33 @@ logging = logger.getLogger(__name__)
 # logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT)
 
 
-# # 开启定时工作
-# try:
-#     # 实例化调度器
-#     scheduler = BackgroundScheduler()
-#     # 调度器使用DjangoJobStore()
-#     scheduler.add_jobstore(DjangoJobStore(), "default")
-#     # 设置定时任务，选择方式为interval，时间间隔为10s
-#     # 另一种方式为每天固定时间执行任务，对应代码为：
-#     # @register_job(scheduler, 'cron', day_of_week='mon-fri', hour='9', minute='30', second='10',id='task_time')
-#     @register_job(scheduler, "interval", minutes=1)
-#     def my_job():
-#         # 这里写你要执行的任务
-#         print('hello, boy')
-#         timestamp = (int(time.time()/60)) * 60
-#         begin_time = datetime.datetime.fromtimestamp(timestamp - log_conf.cms_check_delay * 60 - log_conf.cms_check_span * 60)
-#         end_time = datetime.datetime.fromtimestamp(timestamp - log_conf.cms_check_delay * 60)
-#         cms_log = cms.CMSLog(es_cluster=log_conf.es_cluster, cms_log_index=log_conf.cms_log_index, blink_call_index=log_conf.cms_blink_make_call, dnis_query_url=log_conf.dnis_query_url, voip_query_url=log_conf.voip_query_url, platform_id=log_conf.platform_id, platform_name=log_conf.platform_name, platform_code=log_conf.platform_code)
-#         call_list = cms_log.check_blink_call(begin_time, end_time)
-#         msg = u'%s到%s一共检查到%s通sgBlinkCallEx事件' % (begin_time, end_time, len(call_list))
-#         logging.info(msg)
-#         print(msg)
-#     register_events(scheduler)
-#     scheduler.start()
-# except Exception as e:
-#     print(e)
-#     # 有错误就停止定时器
-#     scheduler.shutdown()
+# 开启定时工作
+try:
+    # 实例化调度器
+    scheduler = BackgroundScheduler()
+    # 调度器使用DjangoJobStore()
+    scheduler.add_jobstore(DjangoJobStore(), "default")
+    # 设置定时任务，选择方式为interval，时间间隔为10s
+    # 另一种方式为每天固定时间执行任务，对应代码为：
+    # @register_job(scheduler, 'cron', day_of_week='mon-fri', hour='9', minute='30', second='10',id='task_time')
+    @register_job(scheduler, "interval", minutes=1)
+    def my_job():
+        # 这里写你要执行的任务
+        print('hello, boy')
+        timestamp = (int(time.time()/60)) * 60
+        begin_time = datetime.datetime.fromtimestamp(timestamp - log_conf.cms_check_delay * 60 - log_conf.cms_check_span * 60)
+        end_time = datetime.datetime.fromtimestamp(timestamp - log_conf.cms_check_delay * 60)
+        cms_log = cms.CMSLog(es_cluster=log_conf.es_cluster, cms_log_index=log_conf.cms_log_index, blink_call_index=log_conf.cms_blink_make_call, dnis_query_url=log_conf.dnis_query_url, voip_query_url=log_conf.voip_query_url, platform_id=log_conf.platform_id, platform_name=log_conf.platform_name, platform_code=log_conf.platform_code)
+        call_list = cms_log.check_blink_call(begin_time, end_time)
+        msg = u'%s到%s一共检查到%s通sgBlinkCallEx事件' % (begin_time, end_time, len(call_list))
+        logging.info(msg)
+        print(msg)
+    register_events(scheduler)
+    scheduler.start()
+except Exception as e:
+    print(e)
+    # 有错误就停止定时器
+    scheduler.shutdown()
 
 
 def url_test(request, app_name, event_name):
