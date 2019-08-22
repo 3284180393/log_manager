@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import datetime
 from elasticsearch import Elasticsearch
 import json
