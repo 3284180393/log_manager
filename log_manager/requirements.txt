@@ -1,4 +1,4 @@
+Django==2.1.8
 django-apscheduler==0.3.0
 elasticsearch==7.0.3
-Django==2.2.4
 requests==2.22.0

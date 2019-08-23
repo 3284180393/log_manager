@@ -84,11 +84,14 @@ def timestamp_test():
 
 
 def datetime_test():
-    now = datetime.datetime.now()
+    now = datetime.datetime.now().replace(microsecond=0)
     print(now)
-    delta = datetime.timedelta(minutes=now.minute, seconds=now.second)
+    delta = datetime.timedelta(minutes=10, seconds=now.second)
     begin = now - delta
     print(begin)
+    delta = datetime.timedelta(minutes=5, seconds=now.second)
+    end = now - delta
+    print(end)
 
 
 def http_test():
@@ -103,17 +106,27 @@ def http_test():
 
 
 def rest_http_test():
-    start_time = '2018-08-01 00:00:00'
-    end_time = '2019-09-01 00:00:00'
+    start_time = '2019-08-13 14:00:00'
+    end_time = '2019-08-13 14:30:00'
     # headers = {'content-type': "application/json"}
     params = 'startTime=%s&endTime=%s' % (start_time, end_time)
     # params = urllib.quote(params)
-    url = 'http://127.0.0.1:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
+    # url = 'http://10.130.44.108:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
+    # url = 'http://127.0.0.1:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
+    url = 'http://127.0.0.1:8001/apps/cms/callDetail/?%s' % params
     # url = urllib.quote(url)
     print(url)
     response = requests.get(url)
     print(response.text)
     return response.text
+
+
+def request_datetime_test():
+    start_time = '2019-08-13 14:00:00'
+    end_time = '2019-08-13 14:30:00'
+    begin = int(time.mktime(datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S').timetuple()))
+    end = int(time.mktime(datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S').timetuple()))
+    print('begin=%s, end=%s' % (begin, end))
 
 
 if __name__ == '__main__':
@@ -122,5 +135,6 @@ if __name__ == '__main__':
     # timestamp_test()
     rest_http_test()
     # datetime_test()
+    # request_datetime_test()
 
 

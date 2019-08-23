@@ -357,6 +357,7 @@ class CMSLog:
         :param es_port:es的port端口
         :return:该时间段发生的sgBlindMakeCallEx
         """
+        logging.info('即从cms将检查%s到%s时间段的sgBlinkMakeCallEx事件' % (start_time, end_time))
         all_call_dict = dict()
         # body = {"sort": [{"@timestamp": {"order": "asc"}}], "query": {"bool": {
         #     "must": [{"match": {
@@ -620,13 +621,23 @@ class CMSLog:
         logging.info(u'数据添加完毕')
 
     def query_blink_call(self, start_time, end_time):
-        body = {"query": {"bool": {
+        body = {"sort": [{"start_time": {"order": "asc"}}], "query": {"bool": {
             "must": [{"range": {
                 "start_time": {"gte": start_time,
                                "lte": end_time}}}]}}}
         logging.info(u'准备查询%s到%s时间段的所有呼叫,body=%s' % (start_time, end_time, json.dumps(body, ensure_ascii=False)))
         call_list = self.__scan_es_by_scroll(self.blink_call_index, body)
         logging.info(u'一共发现%s条满足条件的sgBlindMakeCallEx事件' % len(call_list))
+        return call_list
+
+    def query_call_detail(self, start_time, end_time):
+        body = {"sort": [{"start_time": {"order": "asc"}}], "query": {"bool": {
+            "must": [{"range": {
+                "start_time": {"gte": start_time,
+                               "lte": end_time}}}]}}}
+        logging.info(u'准备查询%s到%s时间段的所有呼叫,body=%s' % (start_time, end_time, json.dumps(body, ensure_ascii=False)))
+        call_list = self.__scan_es_by_scroll(self.cms_call_detail_index, body)
+        logging.info(u'一共发现%s条满足条件的呼叫明细' % len(call_list))
         return call_list
 
     def __scan_es_by_scroll(self, index_name, body, scroll='2m', size=1000):
