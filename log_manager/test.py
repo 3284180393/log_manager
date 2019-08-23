@@ -111,9 +111,10 @@ def rest_http_test():
     # headers = {'content-type': "application/json"}
     params = 'startTime=%s&endTime=%s' % (start_time, end_time)
     # params = urllib.quote(params)
-    # url = 'http://10.130.44.108:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
+    url = 'http://10.130.44.108:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
     # url = 'http://127.0.0.1:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
-    url = 'http://127.0.0.1:8001/apps/cms/callDetail/?%s' % params
+    # url = 'http://127.0.0.1:8001/apps/cms/callDetail/?%s' % params
+    # url = 'http://10.130.44.108:8001/apps/cms/callDetail/?%s' % params
     # url = urllib.quote(url)
     print(url)
     response = requests.get(url)
