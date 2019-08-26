@@ -1,0 +1,102 @@
+下面是cms日志所分析的事件以及关联的patterns
+begin call
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s\d+\:\d+\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s(?<Conn>0x[a-f0-9]+)\sorig\:CCODServices\:\:OrigRemote\slocal\:TEL\:(?<Local_URI>\d+)\sremote\:TEL\:(?<Remote_URI>\d+)\sorigLocal\:\sorigRemote\:\s*$
+create call
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s\d+\:\d+\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\sSETID\:\sConn\:(?<Conn>0x[a-f0-9]+)\s+<\->\sResID\:\s?(?<ResID>0x[a-f0-9]+),\s?CallID\:\s?(?<CallID>0x[a-f0-9]+)
+to slee/ucds
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s\d+\:\d+\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s\(CMS\s\->\sSU\)\sStartService\(\):\s(?<SERVER>\S+),\sLocation\:\s(?<SERVER_TYPE>\S+)\:tcp\s\-h\s(?<IP>[0-9\.]+)\s\-p\s(?<port>\d+),\sServiceData\scount\:\s(?<ServiceData_count>\d+),\sTS\:(?<TS>\d+),\sAccID\:(?<AccID>\d+),\sServiceID\:(?<ServiceID>\d+)
+connect agent and custom
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s\d+\:\d+\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s\(SU\s\->\sCMS\)\sCreateCallEx\((?<Local_URI>\d+),\s,\s(?<Agent_URI>(TEL|SIP)?\:\d+),\sTEL\:(?<Remote_URI>\d+),.+
+
+
+create session:
+example:
+2019-07-12 22:01:49.241 3745016688:12878 [DEBUG] Create Session: MODNUM: translate(0): ani=02061255375, 15101010985 -> 01015101010985
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s\d+\:\d+\s\[(?<level>[A-Z]+)\]\s(?<event_type>Create\sSession)\:\sMODNUM\:\s(?<MODNUM>\S+)\:\sani\=(?<ani>\S+),\s(?<dnis>\S+)\s\->\s(?<dnis_alias>\S+)\s*$
+
+
+GetOrCreateGateway:
+example:
+2019-07-31 17:42:17.859 3682044784:31517 [DEBUG] GetOrCreateGateway use key=10.88.92.13:12000
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s\d+\:\d+\s\[(?<level>[A-Z]+)\]\s(?<event_type>GetOrCreateGateway)\suse key\=(?<ip>[0-9\.]+)\:(?<port>\d+)
+
+
+gateway info:
+example:
+2019-07-12 22:01:49.243 3745016688:12878 [DEBUG] gateway info -> nodeName:/umg_cloud/cluster/umg-8, ip:10.88.92.8, port:12000, trunkid:/umg_cloud/cluster/umg-8/Trunk5, tac:b, trunktype:1, operator:CMCC, localAreaCode:10, rate:0.7
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s(?<event_type>gateway\sinfo)\s\->\snodeName\:(?<nodeName>(/([\w_%!$@:.,+~-]+|\\.)*)+),\sip\:(?<ip>[0-9\.]+),\sport\:(?<port>\d+),\strunkid\:(?<trunkid>(/([\w_%!$@:.,+~-]+|\\.)*)+),\stac\:(?<tac>\S+),\strunktype\:(?<trunktype>\d+),\soperator\:(?<operator>\S+),\slocalAreaCode\:(?<localAreaCode>\d+),\srate\:(?<rate>.+)$
+
+
+gateway location:
+example:
+2019-07-31 17:34:02.391 3671554928:31518 [DEBUG] gateway location:10.88.92.10  gateway_type:ATS  clientID: CMS-1-1; PWD: CMS-1-1
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s(?<event_type>gateway\slocation)\:(?<ip>[0-9\.]+)\s+gateway_type\:(?<gateway_type>\S+)\s+clientID\:\s+(?<clientID>\S+);.+
+
+create session:
+example:
+2019-07-31 17:34:02.392 3671554928:31518 [DEBUG] [0xb5d41608a000001] (SU -> CMS) CreateSession(), Ent:1906060001, from UCDS-1, host type: CCODServices::ACDService
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s\((?<direction>[a-zA-Z]+\s\->\s[a-zA-Z]+)\)\s(?<event_type>CreateSession)\(\),\sEnt\:(?<ent_id>.+),\sfrom\s(?<from>.+),\shost\stype\:\s(?<host_type>[a-zA-Z]+\:\:[a-zA-Z]+)
+
+create call:
+example:
+2019-07-31 17:34:02.393 3640015728:31521 [DEBUG] [0xb5d41608a000001] (SU -> CMS) CreateCallEx(02160384944, , SIP:750000999, TEL:15101010985:818882590139219969|1906060001|15101010985|1906060001, record, 0, CCODServices::DirectionFull, ffffffff)
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s\((?<come_from>SU\s\->\sCMS)\)\s(?<event_type>CreateCallEx)\((?<local_uri>(TEL:)?\d+),\s,\s(?<agent_dn>\S+),\s(TEL\:)?(?<remote_uri>\d+)\D+
+
+conn:
+example:
+2019-07-31 17:52:21.557 3692534640:31516 [DEBUG] [0xb5d4164d500000d] SETID: Conn:0x2c9aa013 <-> ResID:0x806, CallID:0x9
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\sSETID\:\s(?<event_type>Conn)\:(?<conn_id>0x[a-f0-9]+)\s+<\->\sResID\:\s?(?<res_id>0x[a-f0-9]+),\s?CallID\:\s?(?<call_id>0x[a-f0-9]+)
+
+
+make call to gw:
+example:
+2019-08-02 10:57:47.959 3482667888:31536 [DEBUG] [0xb5d43a6ab000014] (CMS -> GW) @@sgBlindMakeCallEx(075536854402, s750000998, -1, 2452, 358) = GATEWAY_SUCCESS
+2019-07-31 17:34:02.394 3640015728:31521 [ERROR] gateways/uvmg/CMS2_GatewayUVMG.cpp:1771 [0xb5d41608a000001] (CMS -> GW) @@sgBlindMakeCallEx(02160384944, s750000999, -1, 14200820, -654960068) = ERR_GENERALERROR
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>\w+)\](\s\S+)?\s\[(?<session_id>0x[a-f0-9]+)\]\s\((?<come_from>CMS\s\->\sGW)\)\s(?<event_type>@@sgBlindMakeCallEx)\((?<calling_number>\S+),\s(?<tac>[0-9a-zA-Z])(?<dnis>\S+),.*,\s(?<res_id>\-?\d+),\s(?<call_id>\-?\d+)\)\s\=\s(?<result>\S+)
+
+
+信令事件(SE):
+example:
+2019-08-02 10:57:03.552 4059749232:31481 [DEBUG] [0xb5d43a67e000012] (SE) 0x74cfc024, CCODServices::SgEvtConnected is virtua: 0 02160384945/SIP:750000998
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s\((?<come_from>SE)\)\s(?<conn_id>0x[0-9a-f]+),\sCCODServices\:\:(?<event_type>[0-9a-zA-Z]+)\sis\s(?<result>\w+)\:\s\d+\s(?<ani>\d+)/(?<phone_type>\w+)\:(?<dnis>\d+)
+
+xdr
+example:
+2019-07-01 16:28:24.048 3377150832:13325 [DEBUG] [0xb5d19c42600000f]Write a XDR, CallID:2, ResID:1802, ANI:01088822231, DNIS:TEL:y15101010985, IsInbound:0, EntID:1906060001
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\](?<event_type>Write a XDR),\sCallID\:(?<callId>[0-9a-f]+),\sResID\:(?<resId>[0-9a-f]+),\sANI\:(?<ani>\d+),\sDNIS\:(?<dnis_type>\w+)\:(?<dnis_tac>\w)(?<dnis>\d+),\sIsInbound\:(?<isInbound>\d+),\sEntID\:(?<entId>\w+)
+
+
+make call ex:
+sample:
+2019-07-31 17:34:02.393 3640015728:31521 [DEBUG] [0xb5d41608a000001] (SU -> CMS) CreateCallEx(02160384944, , SIP:750000999, TEL:15101010985:818882590139219969|1906060001|15101010985|1906060001, record, 0, CCODServices::DirectionFull, ffffffff)
+2019-07-17 11:54:04.680 3745016688:12878 [DEBUG] [0xb5d2e9bdc00001a] (SU -> CMS) CreateCallEx(17077482724, , SIP:750000996, :818861954197094426|1906060001||1906060001, record, 0, CCODServices::DirectionFull, ffffffff)
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s\((?<come_from>SU\s\->\sCMS)\)\s(?<event_type>CreateCallEx)\((?<orig_ani>(TEL:)?\d+),\s,\s(?<dnis_type>\w+)\:(?<orig_dnis>\d+)
+
+get calling_number and dnis:
+example:
+2019-07-26 09:52:13.212 3409271664:12910 [DEBUG] [0xb5d3a5ccd00003a] 0x4b99a0a5 orig:CCODServices::OrigLocal local:02160384945 remote:SIP:s750000996 remoteWithoutTac:SIP:750000996 origLocal:02160384945 origRemote:SIP:750000996
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>\w+)\](\s\S+)?\s\[(?<session_id>0x[a-f0-9]+)\]\s(?<conn_id>0x[0-9a-fA-F]+)\s(?<event_type>orig\:CCODServices\:\:OrigLocal).+origLocal\:(?<calling_number>\d+)\s\origRemote\:(?<dnis_type>\w+)\:(?<dnis>\d+)
+
+mgStartMixRecord
+example:
+2019-07-26 09:51:31.447 3598089072:12892 [DEBUG] [0xb5d3a5c97000039] (CMS -> GW) @@mgStartMixRecord(2054, 6, CCOD1.5\record\1906060001\Agent\20190726\SIP-750000996_1906060001_20190726095119.wav.mix, , 0, 8) = GATEWAY_SUCCESS
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s\((?<direction>[a-zA-Z]+\s\->\s[a-zA-Z]+)\)\s(?<event_type>@@mgStartMixRecord)\((?<res_id>\d+),\s(?<call_id>\d+),\s(?<save_path>.+),\s+,.+\)\s=\s(?<result>\S+)$
+
+mediaID:
+example:
+2019-07-26 09:51:31.447 3598089072:12892 [DEBUG] [0xb5d3a5c97000039] MediaID:0x4b92e0a2, SetRecordType: _mixRecording -> 1
+regex:
+(?<logdate>[0-9\-]+\s[0-9\:]+\.\d+)\s(?<serial_id>\d+\:\d+)\s\[(?<level>[A-Z]+)\]\s\[(?<session_id>0x[a-f0-9]+)\]\s(?<event_type>MediaID)\:(?<media_id>0x[a-f0-9]+),\sSetRecordType\:\s(?<record_type>[_a-zA-Z0-9]+)\s\->\s(?<tac>\d+)

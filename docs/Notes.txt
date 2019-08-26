@@ -1,0 +1,42 @@
+2019.8.21 log_manager 0.0.0.1测试版本发布
+基于elk的ccod日志分析模块部署说明
+1、在服务器搭建好elk，具体步骤可参见https://blog.csdn.net/tanqian351/article/details/83827583
+2、安装python 3.6.5版本
+3、执行pip3 install --upgrade pip升级pip
+4、执行unzip log_manager.zip
+5、进入log_manager目录执行pip install -r requirements.txt(必须用root执行)
+6、执行python manage.py runserver 0.0.0.0:8001,8001可以替换成你想要的端口
+
+
+配置说明:
+在log.conf配置文件中配置主要分成elasticsearch:用来定义和elk相关的配置,ccod:用来配置和ccod相关的配置,task用来定义和定时任务相关配置
+
+[elasticsearch]
+hosts:用来定义es集群配置,基本配置方法为ip:port多个服务器用|连接
+例如:hosts=10.130.44.108:9200
+cms_log_index:用来定义elasticsearch中有关cms日志的索引,需要同logstash中的配置一致
+例如:cms_log_index=cmslog
+cms_blink_make_call:用来保存从cms日志分析出的sgBlinkMakeCallEx事件的索引
+例如:cms_blink_make_call=cms_blink_make_call
+cms_call_detail_index:用来保存从cms日志中恢复出的呼叫明细索引
+例如:cms_call_detail_index=cms_call_detail
+
+[ccod]
+dnis_query_url:用来定义查询被叫号码归属地的接口url
+例如:dnis_query_url=http://paas.ccod.com/t/qn-api/phone_area/queryisp/
+voip_query_url:用来定义查询外显号所属voip公司的接口地址
+例如:voip_query_url=http://paas.ccod.com/t/qn-api/phone_area/queryvoip/
+platform_id:当前ccod平台id
+例如:platform_id=tx_cloud
+platform_name:当前ccod平台名称
+例如:platform_name=腾讯云平台
+platform_code:当前ccod平台所在市的区号
+例如:platform_code=010
+
+[task]
+cms_check_delay:检查多少分钟之前的cms日志
+例如:cms_check_delay=5
+cms_check_span:每次检查的时间跨度,例如当前时间是now,那么每次定时任务将会检查now-cms_check_delay-cms_check_span到now-cms_check_delay之间的cms日志
+例如:cms_check_span=5
+
+docs目录下的cms_patterns.txt是cms日志的logstash解析配置文件，通过修改配置文件中的path => ["/home/elk/samples/logs/cms/cms2.log"]来指向filebeat收集的cms日志文件,多个文件可以用*.log或是其它的方式表达
