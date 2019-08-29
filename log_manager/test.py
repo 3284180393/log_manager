@@ -106,12 +106,12 @@ def http_test():
 
 
 def rest_http_test():
-    start_time = '2019-08-13 14:00:00'
-    end_time = '2019-08-13 14:30:00'
+    start_time = '2019-08-29 14:00:00'
+    end_time = '2019-08-29 14:30:00'
     # headers = {'content-type': "application/json"}
     params = 'startTime=%s&endTime=%s' % (start_time, end_time)
     # params = urllib.quote(params)
-    url = 'http://10.130.44.108:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
+    url = 'http://106.52.106.147:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
     # url = 'http://127.0.0.1:8001/apps/cms/sgBlindMakeCallEx/?%s' % params
     # url = 'http://127.0.0.1:8001/apps/cms/callDetail/?%s' % params
     # url = 'http://10.130.44.108:8001/apps/cms/callDetail/?%s' % params

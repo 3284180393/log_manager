@@ -401,43 +401,43 @@ class CMSLog:
                 calling_number_call_dict[call.calling_number.calling_number] = list()
             calling_number_call_dict[call.calling_number.calling_number].append(call)
         print(u'总共匹配到%s通呼叫' % len(all_call_list))
-        try:
-            query_ret = json.loads(self.__get_dnis_info_from_remote(dnis_call_dict.keys()))
-        except Exception as e:
-            logging.error(u'查询被叫号码信息异常:%s' % e, exc_info=True)
-        else:
-            if query_ret['result']:
-                dnis_dict = dict()
-                for dnis_info in query_ret['data']:
-                    dnis_dict[dnis_info['phone']] = dnis_info
-            for dnis_number in dnis_call_dict.keys():
-                if dnis_number not in dnis_dict.keys():
-                    logging.error(u'服务器没有返回被叫号码%s的相关信息' % dnis_number)
-                else:
-                    info = dnis_dict[dnis_number]
-                    for call in dnis_call_dict[dnis_number]:
-                        call.dnis.set_relative_info(info['flag'], info['serv_provider'], info['city_code'],
-                                                    info['province_name'], info['city_name'])
-            try:
-                query_ret = json.loads(self.__get_voip_info_from_remote(calling_number_call_dict.keys()))
-            except Exception as e:
-                logging.error(u'查询被叫号码信息异常:%s' % e, exc_info=True)
-            else:
-                if query_ret['result']:
-                    number_dict = dict()
-                    for number_info in query_ret['data']:
-                        number_dict[number_info['phone']] = number_info
-                for calling_number in calling_number_call_dict.keys():
-                    if calling_number not in number_dict.keys():
-                        logging.error(u'服务器没有返回外显号%s的相关信息' % calling_number)
-                    else:
-                        info = number_dict[calling_number]
-                        for call in calling_number_call_dict[calling_number]:
-                            call.calling_number.set_relative_info(info['voip_Name'], '010', info['province_name'],
-                                                                  info['city_name'])
-            logging.info(
-                u'一共检查到%s条sgBlindMakeCallEx,现在准备添加到%s/doc中去' % (len(all_call_list), self.blink_call_index))
-            self.__bulk_blink_call_data(all_call_list)
+        # try:
+        #     query_ret = json.loads(self.__get_dnis_info_from_remote(dnis_call_dict.keys()))
+        # except Exception as e:
+        #     logging.error(u'查询被叫号码信息异常:%s' % e, exc_info=True)
+        # else:
+        #     if query_ret['result']:
+        #         dnis_dict = dict()
+        #         for dnis_info in query_ret['data']:
+        #             dnis_dict[dnis_info['phone']] = dnis_info
+        #     for dnis_number in dnis_call_dict.keys():
+        #         if dnis_number not in dnis_dict.keys():
+        #             logging.error(u'服务器没有返回被叫号码%s的相关信息' % dnis_number)
+        #         else:
+        #             info = dnis_dict[dnis_number]
+        #             for call in dnis_call_dict[dnis_number]:
+        #                 call.dnis.set_relative_info(info['flag'], info['serv_provider'], info['city_code'],
+        #                                             info['province_name'], info['city_name'])
+        #     try:
+        #         query_ret = json.loads(self.__get_voip_info_from_remote(calling_number_call_dict.keys()))
+        #     except Exception as e:
+        #         logging.error(u'查询被叫号码信息异常:%s' % e, exc_info=True)
+        #     else:
+        #         if query_ret['result']:
+        #             number_dict = dict()
+        #             for number_info in query_ret['data']:
+        #                 number_dict[number_info['phone']] = number_info
+        #         for calling_number in calling_number_call_dict.keys():
+        #             if calling_number not in number_dict.keys():
+        #                 logging.error(u'服务器没有返回外显号%s的相关信息' % calling_number)
+        #             else:
+        #                 info = number_dict[calling_number]
+        #                 for call in calling_number_call_dict[calling_number]:
+        #                     call.calling_number.set_relative_info(info['voip_Name'], '010', info['province_name'],
+        #                                                           info['city_name'])
+        #     logging.info(
+        #         u'一共检查到%s条sgBlindMakeCallEx,现在准备添加到%s/doc中去' % (len(all_call_list), self.blink_call_index))
+        self.__bulk_blink_call_data(all_call_list)
         return all_call_list
 
     def check_call_detail(self, start_time, end_time):

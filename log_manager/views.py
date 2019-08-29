@@ -29,8 +29,8 @@ try:
     def my_job():
         # 这里写你要执行的任务
         now = datetime.datetime.now().replace(microsecond=0)
-        begin = now - datetime.timedelta(minutes=10, seconds=now.second)
-        end = now - datetime.timedelta(minutes=5, seconds=now.second)
+        begin = now - datetime.timedelta(minutes=log_conf.cms_check_span+log_conf.cms_check_delay, seconds=now.second)
+        end = now - datetime.timedelta(minutes=log_conf.cms_check_delay, seconds=now.second)
         cms_log = cms.CMSLog(es_cluster=log_conf.es_cluster, cms_log_index=log_conf.cms_log_index, blink_call_index=log_conf.cms_blink_make_call, dnis_query_url=log_conf.dnis_query_url, voip_query_url=log_conf.voip_query_url, platform_id=log_conf.platform_id, platform_name=log_conf.platform_name, platform_code=log_conf.platform_code)
         print(u'准备开始检查%s到%s期间的呼叫' % (begin, end))
         call_list = cms_log.check_blink_call(begin, end)
